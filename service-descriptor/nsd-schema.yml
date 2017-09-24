@@ -17,6 +17,16 @@ definitions:
       - "ethernet"
       - "ipv4"
       - "ipv6"
+  service_types:
+    enum:
+      - "ClusterIP"
+      - "NodePort"
+      - "LoadBalancer"
+      - "ExternalName"
+  protocols:
+    enum:
+      - "TCP"
+      - "UDP"
 
 ##
 ## The actual document description.
@@ -166,6 +176,54 @@ properties:
     minItems: 0
     uniqueItems: true
     # How do I write down that there must be at least one of VNFDs or NSDs?
+  microservices:
+    description: "The microservices that a part of this network service."
+    type: "array"
+    items:
+      types: "object"
+      properties:
+        service_id:
+          description: "A unique identifier of this microservice. Will be used as a label in the deployment."
+          type: "string"
+        service_image:
+          description: "The docker image for the microservice"
+          type: "string"
+        service_replicas:
+          description: "The amount of replicas"
+          type: "integer"
+          default: 1
+        service_type:
+          description: "The service type. See Kubernetes documentation for further information."
+          $ref: "#/definitions/service_types"
+        service_ports:
+          description: "Array of service ports."
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              name:
+                description: "A name for the port, e.g. 'http'."
+                type: "string"
+              protocol:
+                description: "The transport protocol."
+                $ref: "#/definitions/protocols"
+                default: "TCP"
+              port:
+                description: "The incoming port."
+                type: "integer"
+              target_port:
+                description: "The target port. Defaults to the value of port."
+                type: "integer"
+            required:
+              - port
+          minItems: 1
+          uniqueItems: true
+      required:
+        - service_id
+        - service_image
+        - service_type
+        - service_ports
+    uniqueItems: true
   connection_points:
     description: "The connection points of the overall NS, that connects the NS to the external world."
     type: "array"
