@@ -1,0 +1,133 @@
+---
+$schema: "http://json-schema.org/draft-04/schema#"
+description: "The core schema for SONATA cloud service records."
+
+##
+## Some definitions used later on.
+##
+definitions:
+  memory_units:
+    enum:
+      - "B"   # Byte
+      - "kB"  # Kilobyte
+      - "KiB" # Kibityte
+      - "MB"  # Megabyte
+      - "MiB" # Mebibyte
+      - "GB"  # Gigabyte
+      - "GiB" # Gibibyte
+      - "TB"  # Terabyte
+      - "TiB" # Tebibyte
+      - "PT"  # Petabyte
+      - "PiT" # Pebibyte
+  service_types:
+    enum:
+      - "ClusterIP"
+      - "NodePort"
+      - "LoadBalancer"
+      - "ExternalName"
+  protocols:
+    enum:
+      - "TCP"
+      - "UDP"
+
+##
+## The actual document description.
+##
+type: "object"
+properties:
+  descriptor_version:
+    description: "The version of the description definition used to describe the cloud service record."
+    type: "string"
+    pattern: "^[A-Za-z0-9\\-_.]+$"
+  id:
+    description: "The UUID of the cloud service record."
+    type: "string"
+    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+  version:
+    description: "The version of the cloud service record. Can be used to track changes."
+    type: "string"
+    pattern: "^[0-9]+$"
+  status:
+    description: "The current status of the CS"
+    enum:
+      - "failed"
+      - "normal operation"
+      - "degraded operation"
+      - "offline"
+      - "terminated"
+  descriptor_reference:
+    description: "Reference to the CSD used to instanciate this CS."
+    type: "string"
+    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+  parent_ns:
+    description: "Reference to records of network service (nsr:id) that this CS instance is part of."
+    type: "string"
+    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+  virtual_deployment_units: 
+    description: "The virtual deployment units (VDUs) of the cloud service record."
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          description: "A unique identifier of this VDU within the scope of this VNF descriptor."
+          type: "string"
+        vdu_reference:
+          description: "The reference to the VDU (vnfd:vdu:id) used to instantiate this element."
+          type: "string"
+        number_of_replicas:
+          description: "The number of replicas of this VDU element."
+          type: "integer"
+          minimum: 0
+        replicas:
+          description: "Additional information distinct for each replica created based on this VDU."
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                description: "Unique name within the namespace of this CS instance."
+                type: "string"
+              vim_id:
+                description: "Identifier of the VIM this replica is running at."
+                type: "string"
+        resource_requirements:
+          description: "The requirments of a node that hosts this cloud service."
+          type: "object"
+          properties:
+            cpu:
+              description: "All the requirements and parameters related to the (virtual) CPU."
+              type: "object"
+              properties:
+                vcpus:
+                  description: "The number of (virtualized) CPU cores."
+                  type: "integer"
+                  minimum: 0
+                  exclusiveMinimum: true
+              required:
+                - vcpus
+            memory:
+              type: "object"
+              properties:
+                size:
+                  description: "The size of the memory for this VDU."
+                  type: "number"
+                  minimum: 0
+                  exclusiveMinimum: true
+                size_unit:
+                  description: "The unit the host memory is measured in. Default is MB (Megabyte)."
+                  $ref: "#/definitions/memory_units"
+                  default: "MB"
+              required:
+                - size
+              additionalProperties: false
+          required:
+            - cpu
+            - memory
+          additionalProperties: false
+      required:
+        - id
+        - resource_requirements
+      additionalProperties: false
+    minItems: 1
+    uniqueItems: true

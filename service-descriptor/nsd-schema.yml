@@ -17,16 +17,6 @@ definitions:
       - "ethernet"
       - "ipv4"
       - "ipv6"
-  service_types:
-    enum:
-      - "ClusterIP"
-      - "NodePort"
-      - "LoadBalancer"
-      - "ExternalName"
-  protocols:
-    enum:
-      - "TCP"
-      - "UDP"
 
 ##
 ## The actual document description.
@@ -176,53 +166,35 @@ properties:
     minItems: 0
     uniqueItems: true
     # How do I write down that there must be at least one of VNFDs or NSDs?
-  microservices:
-    description: "The microservices that a part of this network service."
+  cloud_services:
+    description: "The cloud services that a part of this network service."
     type: "array"
     items:
       types: "object"
       properties:
         service_id:
-          description: "A unique identifier of this microservice. Will be used as a label in the deployment."
+          description: "A unique identifier of this cloud service within the scope if this NS descriptor."
           type: "string"
-        service_image:
-          description: "The docker image for the microservice"
+        service_vendor:
+          description: "The vendor id identifies the CS descriptor uniquely across all cloud service descriptors."
           type: "string"
-        service_replicas:
-          description: "The amount of replicas"
-          type: "integer"
-          default: 1
-        service_type:
-          description: "The service type. See Kubernetes documentation for further information."
-          $ref: "#/definitions/service_types"
-        service_ports:
-          description: "Array of service ports."
-          type: "array"
-          items:
-            type: "object"
-            properties:
-              name:
-                description: "A name for the port, e.g. 'http'."
-                type: "string"
-              protocol:
-                description: "The transport protocol."
-                $ref: "#/definitions/protocols"
-                default: "TCP"
-              port:
-                description: "The incoming port."
-                type: "integer"
-              target_port:
-                description: "The target port. Defaults to the value of port."
-                type: "integer"
-            required:
-              - port
-          minItems: 1
-          uniqueItems: true
+          pattern: "^[a-z0-9\\-_.]+$"
+        service_name:
+          description: "The name of the cloud service description."
+          type: "string"
+          pattern: "^[a-z0-9\\-_.]+$"
+        service_version:
+          description: "The version of the cloud service descriptor."
+          type: "string"
+          pattern: "^(== |>= |<= |!= )?[0-9\\-_.]+$"
+        description:
+          description: "A longer description of the cloud server."
+          type: "string"
       required:
         - service_id
-        - service_image
-        - service_type
-        - service_ports
+        - service_vendor
+        - service_name
+        - service_version
     uniqueItems: true
   connection_points:
     description: "The connection points of the overall NS, that connects the NS to the external world."
