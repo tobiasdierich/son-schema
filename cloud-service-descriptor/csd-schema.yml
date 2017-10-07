@@ -3,34 +3,6 @@ $schema: "http://json-schema.org/draft-04/schema#"
 description: "The core schema for SONATA cloud service descriptors."
 
 ##
-## Some definitions used later on.
-##
-definitions:
-  memory_units:
-    enum:
-      - "B"   # Byte
-      - "kB"  # Kilobyte
-      - "KiB" # Kibityte
-      - "MB"  # Megabyte
-      - "MiB" # Mebibyte
-      - "GB"  # Gigabyte
-      - "GiB" # Gibibyte
-      - "TB"  # Terabyte
-      - "TiB" # Tebibyte
-      - "PT"  # Petabyte
-      - "PiT" # Pebibyte
-  service_types:
-    enum:
-      - "ClusterIP"
-      - "NodePort"
-      - "LoadBalancer"
-      - "ExternalName"
-  protocols:
-    enum:
-      - "TCP"
-      - "UDP"
-
-##
 ## The actual document description.
 ##
 type: "object"
@@ -95,96 +67,20 @@ properties:
       type: "object"
       properties:
         description:
-          description: "An arbitrary description of the VDU:"
+          description: "An arbitrary description of the VDU."
           type: "string"
         id:
           description: "A unique identifier of this VDU within the scope of this VNF descriptor."
           type: "string"
-        service_image:
           description: "The reference to a docker image for the cloud service."
           type: "string"
-        service_type:
-          description: "The service type. See Kubernetes documentation for further information."
-          $ref: "#/definitions/service_types"
-        service_ports:
-          description: "Array of service ports."
-          type: "array"
-          items:
-            type: "object"
-            properties:
-              name:
-                description: "A name for the port, e.g. 'http'."
-                type: "string"
-              protocol:
-                description: "The transport protocol."
-                $ref: "#/definitions/protocols"
-                default: "TCP"
-              port:
-                description: "The incoming port."
-                type: "integer"
-              target_port:
-                description: "The target port. Defaults to the value of port."
-                type: "integer"
-            required:
-              - port
-          minItems: 1
-          uniqueItems: true
-        resource_requirements:
-          description: "The requirments of a node that hosts this cloud service."
+        kubernetes_template:
+          description: "The Kubernetes template which describes the service (e.g. image, scaling, etc.). See Kubernetes docs for further information."
           type: "object"
-          properties:
-            cpu:
-              description: "All the requirements and parameters related to the (virtual) CPU."
-              type: "object"
-              properties:
-                vcpus:
-                  description: "The number of (virtualized) CPU cores."
-                  type: "integer"
-                  minimum: 0
-                  exclusiveMinimum: true
-              required:
-                - vcpus
-              additionalProperties: false
-            memory:
-              type: "object"
-              properties:
-                size:
-                  description: "The size of the memory for this VDU."
-                  type: "number"
-                  minimum: 0
-                  exclusiveMinimum: true
-                size_unit:
-                  description: "The unit the host memory is measured in. Default is MB (Megabyte)."
-                  $ref: "#/definitions/memory_units"
-                  default: "MB"
-              required:
-                - size
-              additionalProperties: false
-          required:
-            - cpu
-            - memory
-          additionalProperties: false
-        scale_in_out:
-          description: "The scale-in/scale-out parameters."
-          type: "object"
-          properties:
-            minimum:
-              description: "The minimum number of VDUs instantiated at any time."
-              type: "integer"
-              minimum: 1
-              default: 1
-            maximum:
-              description: "The maximum number of VDUs instantiated at any time. 0 means unlimited."
-              type: "integer"
-              minimum: 1
-              default: 1
-          additionalProperties: false
+          additionalProperties: true
       required:
         - id
-        - service_image
-        - service_type
-        - service_ports
-        - resource_requirements
+        - kubernetes_template
       additionalProperties: false
     minItems: 1
     uniqueItems: true

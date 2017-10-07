@@ -4,23 +4,29 @@ vendor: "eu.sonata-nfv.cloud-service-descriptor"
 name: "cloud-service-example"
 version: "0.2"
 author: "Tobias Dierich"
-description: "A simple cloud service desciptor."
+description: "A simple cloud service desciptor which deploy an nginx webserver."
 
 virtual_deployment_units:
   - id: "testing"
-    service_image: "image=gcr.io/google_containers/echoserver:1.4"
-    service_type: "NodePort"
-    service_ports:
-      - name: "http"
-        protocol: "TCP"
-        port: 80
-        target_port: 8080
-    resource_requirements:
-      cpu:
-        vcpus: 1
-      memory:
-        size: 1024
-        size_unit: "MB"
-    scale_in_out:
-      minimum: 1
-      maximum: 3
+    kubernetes_template:
+      apiVersion: apps/v1beta2
+      kind: Deployment
+      metadata:
+        name: nginx-deployment
+        labels:
+          app: nginx
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: nginx
+        template:
+          metadata:
+            labels:
+              app: nginx
+          spec:
+            containers:
+            - name: nginx
+              image: nginx:1.7.9
+              ports:
+              - containerPort: 80
