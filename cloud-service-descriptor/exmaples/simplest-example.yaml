@@ -4,7 +4,7 @@ vendor: "eu.sonata-nfv.cloud-service-descriptor"
 name: "cloud-service-example"
 version: "0.2"
 author: "Tobias Dierich"
-description: "A simple cloud service desciptor which deploy an nginx webserver."
+description: "A simple cloud service desciptor which deploys an nginx webserver."
 
 virtual_deployment_units:
   - id: "testing"

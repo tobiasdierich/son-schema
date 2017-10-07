@@ -73,7 +73,7 @@ properties:
           description: "A unique identifier of this VDU within the scope of this VNF descriptor."
           type: "string"
         vdu_reference:
-          description: "The reference to the VDU (vnfd:vdu:id) used to instantiate this element."
+          description: "The reference to the VDU (csd:vdu:id) used to instantiate this element."
           type: "string"
         number_of_replicas:
           description: "The number of replicas of this VDU element."
@@ -90,44 +90,8 @@ properties:
                 type: "string"
               vim_id:
                 description: "Identifier of the VIM this replica is running at."
-                type: "string"
-        resource_requirements:
-          description: "The requirments of a node that hosts this cloud service."
-          type: "object"
-          properties:
-            cpu:
-              description: "All the requirements and parameters related to the (virtual) CPU."
-              type: "object"
-              properties:
-                vcpus:
-                  description: "The number of (virtualized) CPU cores."
-                  type: "integer"
-                  minimum: 0
-                  exclusiveMinimum: true
-              required:
-                - vcpus
-            memory:
-              type: "object"
-              properties:
-                size:
-                  description: "The size of the memory for this VDU."
-                  type: "number"
-                  minimum: 0
-                  exclusiveMinimum: true
-                size_unit:
-                  description: "The unit the host memory is measured in. Default is MB (Megabyte)."
-                  $ref: "#/definitions/memory_units"
-                  default: "MB"
-              required:
-                - size
-              additionalProperties: false
-          required:
-            - cpu
-            - memory
-          additionalProperties: false
       required:
         - id
-        - resource_requirements
       additionalProperties: false
     minItems: 1
     uniqueItems: true
