@@ -1,7 +1,7 @@
 ---
 $schema: "http://json-schema.org/draft-04/schema#"
 #id: "http://www.sonata-nfv.eu/schema/nsd-schema-02-recursive"
-description: "The core scheme for RECUSRIVE service record (many details left out)"
+description: "The core scheme for RECUSRIVE service descriptors (many details left out)"
 
 ##
 ## Some definitions used later on.
@@ -13,45 +13,10 @@ definitions:
       - "external"
       - "management"
   interfaces:
-    ethernet:
-      description: "An Ethernet capable interface"
-      type: "object"
-      properties:
-        address:
-          description: "The Ethernet address of the interface."
-          type: "string"
-          pattern: "^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$"
-      required:
-        - address
-    ipv4:
-      description: "An IPv4 capable interface."
-      type: "object"
-      properties:
-        address:
-          description: "The IPv4 address of the interface."
-          type: "string"
-#          pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-        netmask:
-          description: "The netmask of the interface."
-          type: "string"
-#          pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-        hardware_address:
-          description: "The hardware address of the interface."
-          type: "string"
-      required:
-        - address
-    ipv6:
-      description: "An IPv6 capable interface."
-      type: "object"
-      properties:
-        address:
-          description: "The IPv6 address of the interface."
-          type: "string"
-        hardware_address:
-          description: "The hardware address of the interface."
-          type: "string"
-      required:
-        - address
+    enum:
+      - "ethernet"
+      - "ipv4"
+      - "ipv6"
 
 ##
 ## The actual document description.
@@ -59,42 +24,137 @@ definitions:
 type: "object"
 properties:
   descriptor_version:
-    description: "The version of the description definition used to describe the network record."
+    description: "The version of the description definition used to describe the network descriptor."
     type: "string"
     pattern: "^[A-Za-z0-9\\-_.]+$"
-  id:
-    description: "The UUID of the service record."
+  vendor:
+    description: "The vendor id allows to identify a VNF descriptor uniquely across all function descriptor vendors."
     type: "string"
-    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-  version:
-    description: "The version of the service record. Can be used to track changes."
+    pattern: "^[a-z0-9\\-_.]+$"
+  name: 
+    description: "The name of the network service description."
     type: "string"
-    pattern: "^[0-9]+$"
-  status:
-    description: "The current status of the Service"
-    enum:
-      - "failed"
-      - "normal operation"
-      - "degraded operation"
-      - "offline"
-      - "updating"
-      - "terminated"
-  descriptor_reference:
-    description: "Reference to the NSD used to instanciate this NS."
+    pattern: "^[a-z0-9\\-_.]+$"
+  version: 
+    description: "The version of the service descriptor."
     type: "string"
-    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    pattern: "^[0-9\\-_.]+$"
+  author:
+    description: "The person or organization that created the NS descriptor."
+    type: "string"
+  description:
+    description: "A longer description of the network service."
+    type: "string"
+  licences:
+    description: "Information on the licence of this NSD."
+    type: "array"
+    items:
+      anyOf:
+        - type: "object"
+          properties:
+            type:
+              description: "The type of licence, 'public' in this case."
+              type: "string"
+              enum:
+              - "public"
+          required:
+            - "type"
+          additionalProperties: false
+        - type: "object"
+          properties:
+            type:
+              description: "The type of licence, 'private' in this case."
+              type: "string"
+              enum:
+              - "private"
+            url:
+              description: "The URL to the licence file."
+              type: "string"
+          required:
+            - "type"
+            - "url"
+          additionalProperties: false
+    additionalItems: false
+    uniqueItems: true
+  service_specific_managers:
+    description: "A list of SSMs used to manage this network service."
+    type: "array"
+    items: 
+      description: "An SSM object of this VNF. FSMs are always Docker containers."
+      type: "object"
+      properties:
+        description:
+          description: "An arbitrary description of the FSM."
+          type: "string"
+        id:
+          description: "A unique identifier of this FSM within the scope of this VNF descriptor."
+          type: "string"
+        image:
+          description: "The reference to a Docker image."
+          type: "string"
+        image_md5:
+          description: "An MD5 hash of the Docker image."
+          type: "string"
+          pattern: "^[A-Fa-f0-9]{32}$"
+        resource_requirements:
+          description: "The requirements for the Docker environment that runs the FSM."
+          type: "object"
+          properties:
+            docker_version:
+              description: "The version of Docker needed for this FSM."
+              type: "string"
+              pattern: "^(== |>= |<= |!= )?[0-9\\-_.]+$"
+        options:
+          description: "The options as key-value parameters that are passed to the Docker container. Can be used to configure the Docker."
+          type: "array"
+          items:
+            description: "A key-value parameter object."
+            type: "object"
+            properties:
+              key:
+                type: "string"
+              value:
+                type: "string"
+            required:
+              - key
+              - value
+            additionalProperties: false
+          uniqueItems: true
+      required:
+        - id
+        - image
+      additionalProperties: false
+    uniqueItems: true
+    minItems: 0
   network_functions: 
-    description: "The VNF instances (actually their records), that are part of this network service instance."
+    description: "The VNFs (their descriptors), that are part of this network service."
     type: "array"
     items: 
       type: "object"
       properties:
-        vnfr_id:
-          description: "A unique identifier of the network function record within the scope of this NS instance."
+        vnf_id:
+          description: "A unique identifier of this network function within the scope of this NS descriptor."
           type: "string"
-          pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        vnf_vendor:
+          description: "The vendor id identifies the VNF descriptor uniquely across all function descriptors."
+          type: "string"
+          pattern: "^[a-z0-9\\-_.]+$"
+        vnf_name:
+          description: "The name of the function description."
+          type: "string"
+          pattern: "^[a-z0-9\\-_.]+$"
+        vnf_version:
+          description: "The version of the function descriptor."
+          type: "string"
+          pattern: "^(== |>= |<= |!= )?[0-9\\-_.]+$"
+        description:
+          description: "A longer description of the network function."
+          type: "string"
       required:
-        - vnfr_id
+        - vnf_id
+        - vnf_vendor
+        - vnf_name
+        - vnf_version
       additionalProperties: false
     minItems: 1
     uniqueItems: true
@@ -106,6 +166,36 @@ properties:
     minItems: 0
     uniqueItems: true
     # How do I write down that there must be at least one of VNFDs or NSDs?
+  cloud_services:
+    description: "The cloud services that a part of this network service."
+    type: "array"
+    items:
+      types: "object"
+      properties:
+        service_id:
+          description: "A unique identifier of this cloud service within the scope if this NS descriptor."
+          type: "string"
+        service_vendor:
+          description: "The vendor id identifies the CS descriptor uniquely across all cloud service descriptors."
+          type: "string"
+          pattern: "^[a-z0-9\\-_.]+$"
+        service_name:
+          description: "The name of the cloud service description."
+          type: "string"
+          pattern: "^[a-z0-9\\-_.]+$"
+        service_version:
+          description: "The version of the cloud service descriptor."
+          type: "string"
+          pattern: "^(== |>= |<= |!= )?[0-9\\-_.]+$"
+        description:
+          description: "A longer description of the cloud server."
+          type: "string"
+      required:
+        - service_id
+        - service_vendor
+        - service_name
+        - service_version
+    uniqueItems: true
   connection_points:
     description: "The connection points of the overall NS, that connects the NS to the external world."
     type: "array"
@@ -117,8 +207,7 @@ properties:
           type: "string"
         interface:
           description: "The type of connection point, such as a virtual port, a virtual NIC address, a physical port, a physcial NIC address, or the endpoint of a VPN tunnel."
-          oneOf:
-            - $ref: "#/definitions/interfaces"
+          $ref: "#/definitions/interfaces"
         type:
           description: "The type of the connection point with respect to its visibility in the service platform"
           $ref: "#/definitions/connection_point_types"
@@ -167,6 +256,7 @@ properties:
             connection_points_reference:
               type: "array"
               items:
+                description: "The connection point reference has to uniquely reference the connection point of the VNF. To this end, it should name the vnf_id of the network_function section and the name of the connection point of this VNF as specified in the VNFD."
                 type: "string"
                 minItems: 2
                 uniqueItems: true
@@ -219,7 +309,7 @@ properties:
               type: "integer"
             number_of_virtual_links: 
               type: "integer"
-            depedent_virtual_links: 
+            constituent_virtual_links: 
               type: "array"
               items: 
                 - type: "string"
@@ -320,6 +410,7 @@ properties:
         type: "string"
 required: 
   - descriptor_version
-  - id 
-  - status 
+  - vendor 
+  - name
+  - version
 additionalProperties: false

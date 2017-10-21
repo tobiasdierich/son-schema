@@ -98,6 +98,21 @@ properties:
       additionalProperties: false
     minItems: 1
     uniqueItems: true
+  cloud_services: 
+    description: "The CS instances (actually their records), that are part of this network service instance."
+    type: "array"
+    items: 
+      type: "object"
+      properties:
+        csr_id:
+          description: "A unique identifier of the cloud service record within the scope of this NS instance."
+          type: "string"
+          pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+      required:
+        - csr_id
+      additionalProperties: false
+    minItems: 1
+    uniqueItems: true
   network_services:
     description: "The recursive NSs (their descriptors), that are part of this network service."
     type: "array"
