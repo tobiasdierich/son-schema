@@ -18,7 +18,7 @@ virtual_deployment_units:
   resource_requirements:
     memory:
       size: 128
-      size_unit: "Mi"
+      size_unit: "MiB"
   scale_in_out:
     minimum: 2
     maximum: 5
