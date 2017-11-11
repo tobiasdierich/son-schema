@@ -127,13 +127,10 @@ properties:
                 size_unit:
                   description: "The unit the host memory is measured in. Default is MB (Megabyte)."
                   $ref: "#/definitions/memory_units"
-                  default: "MB"
+                  default: "Mi"
               required:
                 - size
               additionalProperties: false
-          required:
-            - cpu
-            - memory
           additionalProperties: false
         scale_in_out:
           description: "The scale-in/scale-out parameters."

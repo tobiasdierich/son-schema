@@ -150,9 +150,6 @@ properties:
               required:
                 - size
               additionalProperties: false
-          required:
-            - cpu
-            - memory
           additionalProperties: false
         scale_in_out:
           description: "The scale-in/scale-out parameters."
@@ -174,7 +171,6 @@ properties:
         - service_image
         - service_type
         - service_ports
-        - resource_requirements
       additionalProperties: false
     minItems: 1
     uniqueItems: true
