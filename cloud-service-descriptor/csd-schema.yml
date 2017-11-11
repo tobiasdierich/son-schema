@@ -8,8 +8,7 @@ description: "The core schema for SONATA cloud service descriptors."
 definitions:
   memory_units:
     enum:
-      - "MB"  # Megabyte
-      - "MiB" # Mebibyte
+      - "Mi" # Mebibyte
   service_types:
     enum:
       - "ClusterIP"
