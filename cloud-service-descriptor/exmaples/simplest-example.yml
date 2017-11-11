@@ -1,32 +1,24 @@
+---
 descriptor_version: "2.0"
-
 vendor: "eu.sonata-nfv.cloud-service-descriptor"
-name: "cloud-service-example"
+name: "hello-web"
 version: "0.2"
 author: "Tobias Dierich"
-description: "A simple cloud service desciptor which deploys an nginx webserver."
-
+description: "A simple cloud service descriptor which deploys an hello-world nodeJs app."
 virtual_deployment_units:
-  - id: "testing"
-    kubernetes_template:
-      apiVersion: apps/v1beta2
-      kind: Deployment
-      metadata:
-        name: nginx-deployment
-        labels:
-          app: nginx
-      spec:
-        replicas: 3
-        selector:
-          matchLabels:
-            app: nginx
-        template:
-          metadata:
-            labels:
-              app: nginx
-          spec:
-            containers:
-            - name: nginx
-              image: nginx:1.7.9
-              ports:
-              - containerPort: 80
+- id: "testing"
+  name: "hello-web"
+  service_image: "gcr.io/google-samples/hello-app:1.0"
+  service_type: "LoadBalancer"
+  service_ports:
+  - name: "http"
+    protocol: "TCP"
+    port: 8080
+    target_port: 8080
+  resource_requirements:
+    memory:
+      size: 128
+      size_unit: "Mi"
+  scale_in_out:
+    minimum: 2
+    maximum: 5

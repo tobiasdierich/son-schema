@@ -8,17 +8,7 @@ description: "The core schema for SONATA cloud service records."
 definitions:
   memory_units:
     enum:
-      - "B"   # Byte
-      - "kB"  # Kilobyte
-      - "KiB" # Kibityte
-      - "MB"  # Megabyte
       - "MiB" # Mebibyte
-      - "GB"  # Gigabyte
-      - "GiB" # Gibibyte
-      - "TB"  # Terabyte
-      - "TiB" # Tebibyte
-      - "PT"  # Petabyte
-      - "PiT" # Pebibyte
   service_types:
     enum:
       - "ClusterIP"
@@ -75,23 +65,94 @@ properties:
         vdu_reference:
           description: "The reference to the VDU (csd:vdu:id) used to instantiate this element."
           type: "string"
-        number_of_replicas:
-          description: "The number of replicas of this VDU element."
+        number_of_instances:
+          description: "The number of instances of this VDU element."
           type: "integer"
           minimum: 0
-        replicas:
-          description: "Additional information distinct for each replica created based on this VDU."
+        vim_id:
+          description: "Identifier of the VIM this replica is running at."
+        service_image:
+          description: "The reference to a docker image for the cloud service."
+          type: "string"
+        service_type:
+          description: "The service type. See Kubernetes documentation for further information."
+          $ref: "#/definitions/service_types"
+        service_ports:
+          description: "Array of service ports."
           type: "array"
           items:
             type: "object"
             properties:
-              id:
-                description: "Unique name within the namespace of this CS instance."
+              name:
+                description: "A name for the port, e.g. 'http'."
                 type: "string"
-              vim_id:
-                description: "Identifier of the VIM this replica is running at."
+              protocol:
+                description: "The transport protocol."
+                $ref: "#/definitions/protocols"
+                default: "TCP"
+              port:
+                description: "The incoming port."
+                type: "integer"
+              target_port:
+                description: "The target port. Defaults to the value of port."
+                type: "integer"
+            required:
+              - port
+          minItems: 1
+          uniqueItems: true
+        resource_requirements:
+          description: "The requirments of a node that hosts this cloud service."
+          type: "object"
+          properties:
+            cpu:
+              description: "All the requirements and parameters related to the (virtual) CPU."
+              type: "object"
+              properties:
+                vcpus:
+                  description: "The number of (virtualized) CPU cores."
+                  type: "integer"
+                  minimum: 0
+                  exclusiveMinimum: true
+              required:
+                - vcpus
+              additionalProperties: false
+            memory:
+              type: "object"
+              properties:
+                size:
+                  description: "The size of the memory for this VDU."
+                  type: "number"
+                  minimum: 0
+                  exclusiveMinimum: true
+                size_unit:
+                  description: "The unit the host memory is measured in. Default is MB (Megabyte)."
+                  $ref: "#/definitions/memory_units"
+                  default: "MB"
+              required:
+                - size
+              additionalProperties: false
+          required:
+            - cpu
+            - memory
+          additionalProperties: false
+        scale_in_out:
+          description: "The scale-in/scale-out parameters."
+          type: "object"
+          properties:
+            minimum:
+              description: "The minimum number of VDUs instantiated at any time."
+              type: "integer"
+              minimum: 1
+              default: 1
+            maximum:
+              description: "The maximum number of VDUs instantiated at any time. 0 means unlimited."
+              type: "integer"
+              minimum: 1
+              default: 1
+          additionalProperties: false
       required:
         - id
+        - vim_id
       additionalProperties: false
     minItems: 1
     uniqueItems: true
