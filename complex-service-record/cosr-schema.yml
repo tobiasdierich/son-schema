@@ -96,7 +96,7 @@ properties:
       required:
         - vnfr_id
       additionalProperties: false
-    minItems: 1
+    minItems: 0
     uniqueItems: true
   cloud_services: 
     description: "The CS instances (actually their records), that are part of this network service instance."
@@ -111,7 +111,7 @@ properties:
       required:
         - csr_id
       additionalProperties: false
-    minItems: 1
+    minItems: 0
     uniqueItems: true
   network_services:
     description: "The recursive NSs (their descriptors), that are part of this network service."
