@@ -147,6 +147,22 @@ properties:
               minimum: 1
               default: 1
           additionalProperties: false
+        environment:
+          description: "Environment variables for the VDU"
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              name:
+                description: "The name of the env variable"
+                type: "string"
+              value:
+                description: "Value of the env variable"
+                type: "string"
+            required:
+              - name
+              - value
+          uniqueItems: true
       required:
         - id
         - vim_id

@@ -22,3 +22,6 @@ virtual_deployment_units:
   scale_in_out:
     minimum: 2
     maximum: 5
+  environment:
+    - name: "APP_ENV"
+      value: "production"
