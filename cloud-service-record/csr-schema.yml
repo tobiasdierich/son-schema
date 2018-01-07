@@ -129,6 +129,9 @@ properties:
         service_image:
           description: "The reference to a docker image for the cloud service."
           type: "string"
+        service_name:
+          description: "The name for the network service. Useful for DNS, etc."
+          type: "string"
         service_type:
           description: "The service type. See Kubernetes documentation for further information."
           $ref: "#/definitions/service_types"
